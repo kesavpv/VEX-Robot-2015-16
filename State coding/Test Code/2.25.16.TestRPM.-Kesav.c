@@ -1,4 +1,5 @@
 #pragma config(I2C_Usage, I2C1, i2cSensors)
+#pragma config(Sensor, dgtl1,  LED,            sensorLEDtoVCC)
 #pragma config(Sensor, I2C_1,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_2,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Motor,  port2,           rightBack,     tmotorVex393HighSpeed_MC29, openLoop, reversed, encoderPort, I2C_1)
@@ -76,7 +77,7 @@ task main()
 	*/
 
 	float diff;
-	float change = 1;
+	float change = .1;
 
 	resetMotorEncoder(leftBack);
 	resetMotorEncoder(rightBack);
@@ -97,23 +98,25 @@ task main()
 		RPM_Right_Motor = getMotorVelocity(rightBack);
 		RPM_Right_FlyWheel = RPM_Right_Motor * 18;
 
-		RPM_Left_Motor = getMotorVelocity(leftBack);
-		RPM_Left_FlyWheel = RPM_Left_Motor * 18;
+		//RPM_Left_Motor = getMotorVelocity(leftBack);
+		//RPM_Left_FlyWheel = RPM_Left_Motor * 18;
 
-		diff = Desired_RPM_Motor - RPM_Right_Motor;
+		diff = Desired_RPM_FlyWheel - RPM_Right_FlyWheel;
 
-		if(abs(diff) < 20)
+		if(abs(diff) < 100)
 		{
-			if(RPM_Right_Motor < Desired_RPM_Motor)
+			if(RPM_Right_FlyWheel < Desired_RPM_FlyWheel)
 				slow += change;
-			else if(RPM_Right_Motor > Desired_RPM_Motor)
+			else if(RPM_Right_FlyWheel > Desired_RPM_FlyWheel)
 				slow -= change;
 
-			if(RPM_Left_Motor < Desired_RPM_Motor)
-				slow += change;
-			else if(RPM_Left_Motor > Desired_RPM_Motor)
-				slow -= change;
+//			if(RPM_Left_Motor < Desired_RPM_Motor)
+//				slow += change;
+//			else if(RPM_Left_Motor > Desired_RPM_Motor)
+//				slow -= change;
 		}
+
+		SensorValue[LED] = RPM_Right_FlyWheel > Desired_RPM_FlyWheel;
 
 		//AVG_RIGHT[i] = RPM_Right_Motor;
 		//i++;
