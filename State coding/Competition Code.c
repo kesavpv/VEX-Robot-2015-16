@@ -24,6 +24,11 @@
 
 #include "Vex_Competition_Includes.c"
 
+#define Desired_RPM_Motor 107
+#define Desired_RPM_FlyWheel 1928
+
+float RPM_Right_Motor, RPM_Right_FlyWheel, RPM_Left_Motor, RPM_Left_FlyWheel;
+
 void pre_auton() {
 	bStopTasksBetweenModes = true;
 }
@@ -36,7 +41,9 @@ task autonomous()
 	motor[leftFront]  = speed;
 	motor[rightFront] = speed;
 	motor[rightBack]  = speed;
+	
 	wait1Msec(2500);
+	
 	motor[intakeLow]  = 127;
 	motor[intakeHigh] = 127;
 
@@ -57,7 +64,10 @@ task usercontrol()
 	int med = 90;
 	int slow = 70;
 	int low = 50;
-
+	
+	resetMotorEncoder(leftBack);
+	resetMotorEncoder(rightBack);
+	
 	while(true)
 	{
 		motor[LeftDrive] = vexRT[Ch3];       //Drive motors left
@@ -112,5 +122,11 @@ task usercontrol()
 			motor[leftFront] = low;
 			motor[leftBack] = low;
 		}
+		
+		RPM_Right_Motor = getMotorVelocity(rightBack);
+		RPM_Right_FlyWheel = RPM_Right_Motor * 18;
+
+		RPM_Left_Motor = getMotorVelocity(leftBack);
+		RPM_Left_FlyWheel = RPM_Left_Motor * 18;
 	}
 }
