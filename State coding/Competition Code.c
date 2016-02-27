@@ -1,4 +1,5 @@
 #pragma config(I2C_Usage, I2C1, i2cSensors)
+#pragma config(Sensor, dgtl1,  LED,            sensorLEDtoVCC)
 #pragma config(Sensor, dgtl2,  limitSwitch,    sensorTouch)
 #pragma config(Sensor, dgtl3,  shaftEncoderLeft, sensorQuadEncoder)
 #pragma config(Sensor, dgtl5,  shaftEncoderRight, sensorQuadEncoder)
@@ -135,5 +136,7 @@ task usercontrol()
 		clearLCDLine(1);
 		displayLCDNumber(1, 0, RPM_Right);
 		displayLCDNumber(1, 8, RPM_Right_FlyWheel);
+		
+		SensorValue[LED] = RPM_Right_FlyWheel > Desired_RPM_FlyWheel && RPM_Left_FlyWheel > Desired_RPM_FlyWheel;
 	}
 }
