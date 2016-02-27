@@ -18,48 +18,38 @@
 
 task main()
 {
-	nMotorEncoder[rightBack] = 0;
-	nMotorEncoder[leftBack] = 0;
-
 	int fast = 127;
 	int med = 90;
 	int slow = 70;
 	int low = 50;
 /*
-	if(vexRT[Btn6D]) //Button 6D - flywheels OFF
-	{
-		motor[leftFront]  = 0;
-		motor[leftBack]   = 0;
-		motor[rightFront] = 0;
-		motor[rightBack] = 0;
-	}*/
-//	if(vexRT[Btn6U]) //Button 6U - flywheels 63
-//	{
-		motor[leftFront]  = slow;
-		motor[leftBack]   = slow;
-		motor[rightFront] = slow;
-		motor[rightBack] = slow;
-		while(true);
-//	}
-/*	if(vexRT[Btn8U]) //Button 8U - flywheels 90
-	{
-		motor[leftFront] = med;
-		motor[leftBack] = med;
-		motor[rightFront] = med;
-		motor[rightBack] = med;
-	}
- 	if(vexRT[Btn8L]) //Button 8L - flywheels 127
-	{
-		motor[rightFront] = fast;
-		motor[rightBack] = fast;
-		motor[leftFront] = fast;
-		motor[leftBack] = fast;
-	}
-	if(vexRT[Btn8D]) //Button 8D - flywheels 39
-	{
-		motor[rightFront] = low;
-		motor[rightBack] = low;
-		motor[leftFront] = low;
-		motor[leftBack] = low;
-	}*/
+	motor[leftFront]  = 0;
+	motor[leftBack]   = 0;
+	motor[rightFront] = 0;
+	motor[rightBack] = 0;
+*/	
+	motor[leftFront]  = slow;
+	motor[leftBack]   = slow;
+	motor[rightFront] = slow;
+	motor[rightBack] = slow;
+	
+/*	
+	motor[leftFront] = med;
+	motor[leftBack] = med;
+	motor[rightFront] = med;
+	motor[rightBack] = med;
+*/
+/*
+	motor[rightFront] = fast;
+	motor[rightBack] = fast;
+	motor[leftFront] = fast;
+	motor[leftBack] = fast;
+*/
+/*	
+	motor[rightFront] = low;
+	motor[rightBack] = low;
+	motor[leftFront] = low;
+	motor[leftBack] = low;
+*/	
+	while(true);
 }
