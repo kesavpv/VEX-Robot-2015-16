@@ -68,6 +68,9 @@ task usercontrol()
 	resetMotorEncoder(leftBack);
 	resetMotorEncoder(rightBack);
 	
+	clearLCDLine(0);
+	displayLCDCenteredString(0, "Motor   FlyWheel");
+	
 	while(true)
 	{
 		motor[LeftDrive] = vexRT[Ch3];       //Drive motors left
@@ -128,5 +131,9 @@ task usercontrol()
 
 		RPM_Left_Motor = getMotorVelocity(leftBack);
 		RPM_Left_FlyWheel = RPM_Left_Motor * 18;
+		
+		clearLCDLine(1);
+		displayLCDNumber(1, 0, RPM_Right);
+		displayLCDNumber(1, 8, RPM_Right_FlyWheel);
 	}
 }
