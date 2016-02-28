@@ -25,10 +25,20 @@
 
 #include "Vex_Competition_Includes.c"
 
-#define Desired_RPM_Motor 107
-#define Desired_RPM_FlyWheel 1928
+#define DESIRED_RPM_MOTOR 107
+#define DESIRED_RPM_FLYWHEEL 1928
 
-float RPM_Right_Motor, RPM_Right_FlyWheel, RPM_Left_Motor, RPM_Left_FlyWheel;
+#define kP	0.02
+#define kI	0.04
+
+double RPM_Right_Motor;
+double RPM_Left_Motor;
+
+double RPM_Right_FlyWheel;
+double RPM_Left_FlyWheel;
+
+double speed_Right = 0;
+double speed_Left = 0;
 
 void pre_auton() {
 	bStopTasksBetweenModes = true;
@@ -59,84 +69,154 @@ task autonomous()
 	motor[intakeHigh] = 0;
 }
 
+/*
+
+Right Joystick: Drive right motors
+Left Joystick: Drive left motors
+
+Button 7U: Low intake
+Button 7L: Low intake reverse
+Button 7D: Low intake off
+
+Button 5U: High intake
+Button 7R: reverse
+Button 5D: High intake off
+
+Button 6D - flywheels off
+Button 8D - flywheels 50
+Button 6U - flywheels 70
+Button 8U - flywheels 90
+Button 8L - flywheels 120
+
+*/
+
+task adjustPower()
+{
+	double pidError_Right = 0;
+	double pidIntegral_Right = 0;
+	double pidValue_Right;
+
+	double pidError_Left = 0;
+	double pidIntegral_Left = 0;
+	double pidValue_Left;
+	
+	pidError_Right = DESIRED_RPM_FLYWHEEL - RPM_RIGHT_FLYWHEEL;
+	pidError_Left = DESIRED_RPM_FLYWHEEL - RPM_LEFT_FLYWHEEL;
+
+	if(pidError_Right < 50)
+		pidIntegral_Right += pidError_Right;
+	else
+		pidIntegral_Right = 0;
+
+	if(pidError_Left < 50)
+		pidIntegral_Left += pidError_Left;
+	else
+		pidIntegral_Left = 0;
+	
+	pidValue_Right = (kP * pidError_Right) + (kI * pidIntegral_Right);
+	speed += pidValue_Right;
+
+	pidValue_Left = (kP * pidError_Left) + (kI * pidIntegral_Left);
+	speed += pidValue_Left;
+	
+	if(speed_Right > 127)
+		speed_Right = 127;
+	else if(speed_Right < -127)
+		speed_Right = -127;
+
+	if(speed_Left > 127)
+		speed_Left = 127;
+	else if(speed_Left < -127)
+		speed_Left = -127;
+
+	motor[rightFront]   = speed_Right;
+	motor[rightBack] = speed_Right;
+
+	motor[leftFront]   = speed_Left;
+	motor[leftBack] = speed_Left;
+}
+
 task usercontrol()
 {
-	int fast = 127;
+	int fast = 120;
 	int med = 90;
 	int slow = 70;
 	int low = 50;
+	
 	
 	resetMotorEncoder(leftBack);
 	resetMotorEncoder(rightBack);
 	
 	clearLCDLine(0);
-	displayLCDCenteredString(0, "Motor   FlyWheel");
+	displayLCDCenteredString(0, "Left   Right");
 	
 	while(true)
 	{
-		motor[LeftDrive] = vexRT[Ch3];       //Drive motors left
-		motor[RightDrive] = vexRT[Ch2];      //Drive motors right
+		RPM_Right_Motor = getMotorVelocity(rightBack);
+		RPM_Right_FlyWheel = RPM_Right_Motor * 18;
+
+		RPM_Left_Motor = getMotorVelocity(leftBack);
+		RPM_Left_FlyWheel = RPM_Left_Motor * 18;
+
+		motor[LeftDrive] = vexRT[Ch3];
+		motor[RightDrive] = vexRT[Ch2];
 
 		if(vexRT[Btn7U])
-			motor[intakeLow] = 127;   //intake Low - Button 7U
+			motor[intakeLow] = 127;
 		else if(vexRT[Btn7L])
-			motor[intakeLow] = -127;  //reverse - Button 7L
+			motor[intakeLow] = -127;
 		else if(vexRT[Btn7D])
-			motor[intakeLow] = 0;     //off - Button 7D
+			motor[intakeLow] = 0;
 
 		if(vexRT[Btn5U])
-			motor[intakeHigh] = 127;  //intake High (Lift) - Button 5U
+			motor[intakeHigh] = 127;
 		else if(vexRT[Btn7R])
-			motor[intakeHigh] = -127; //reverse - Button 7R
+			motor[intakeHigh] = -127;
 		else if(vexRT[Btn5D])
-			motor[intakeHigh] = 0;    //off - Button 5D
+			motor[intakeHigh] = 0;
 
-		if(vexRT[Btn6D]) //Button 6D - flywheels OFF
+		if(vexRT[Btn6D])
 		{
 			motor[leftFront]  = 0;
 			motor[leftBack]   = 0;
 			motor[rightFront] = 0;
 			motor[rightBack] = 0;
 		}
-		if(vexRT[Btn6U]) //Button 6U - flywheels 63
-		{
-			motor[leftFront]  = slow;
-			motor[leftBack]   = slow;
-			motor[rightFront] = slow;
-			motor[rightBack] = slow;
-		}
-		if(vexRT[Btn8U]) //Button 8U - flywheels 90
-		{
-			motor[leftFront] = med;
-			motor[leftBack] = med;
-			motor[rightFront] = med;
-			motor[rightBack] = med;
-		}
-	 	if(vexRT[Btn8L]) //Button 8L - flywheels 127
-		{
-			motor[rightFront] = fast;
-			motor[rightBack] = fast;
-			motor[leftFront] = fast;
-			motor[leftBack] = fast;
-		}
-		if(vexRT[Btn8D]) //Button 8D - flywheels 39
+		else if(vexRT[Btn8D])
 		{
 			motor[rightFront] = low;
 			motor[rightBack] = low;
 			motor[leftFront] = low;
 			motor[leftBack] = low;
 		}
-		
-		RPM_Right_Motor = getMotorVelocity(rightBack);
-		RPM_Right_FlyWheel = RPM_Right_Motor * 18;
+		else if(vexRT[Btn6U])
+		{
+			motor[leftFront]  = slow;
+			motor[leftBack]   = slow;
+			motor[rightFront] = slow;
+			motor[rightBack] = slow;
+		}
+		else if(vexRT[Btn8U])
+		{
+			motor[leftFront] = med;
+			motor[leftBack] = med;
+			motor[rightFront] = med;
+			motor[rightBack] = med;
+		}
+		else if(vexRT[Btn8L])
+		{
+			motor[rightFront] = fast;
+			motor[rightBack] = fast;
+			motor[leftFront] = fast;
+			motor[leftBack] = fast;
+		}
+		else if(vexRT[Btn8R])
+			StartTask(adjustPower());
 
-		RPM_Left_Motor = getMotorVelocity(leftBack);
-		RPM_Left_FlyWheel = RPM_Left_Motor * 18;
+		SensorValue[LED] = RPM_Right_FlyWheel > DESIRED_RPM_FLYWHEEL && RPM_Left_FlyWheel > DESIRED_RPM_FLYWHEEL;
 		
 		clearLCDLine(1);
-		displayLCDNumber(1, 0, RPM_Right);
+		displayLCDNumber(1, 0, RPM_Left_FlyWheel);
 		displayLCDNumber(1, 8, RPM_Right_FlyWheel);
-		
-		SensorValue[LED] = RPM_Right_FlyWheel > Desired_RPM_FlyWheel && RPM_Left_FlyWheel > Desired_RPM_FlyWheel;
 	}
 }
