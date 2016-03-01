@@ -18,29 +18,29 @@
 #define kP	0.02
 #define kI	0.04
 
-double RPM_Right_Motor;
-double RPM_Left_Motor;
+float RPM_Right_Motor;
+float RPM_Left_Motor;
 
-double RPM_Right_FlyWheel;
-double RPM_Left_FlyWheel;
+float RPM_Right_FlyWheel;
+float RPM_Left_FlyWheel;
 
-double speed_Right = 0;
-double speed_Left = 0;
+float speed_Right = 0;
+float speed_Left = 0;
 
 task main()
 {
-	double pidError_Right = 0;
-	double pidIntegral_Right = 0;
-	double pidValue_Right;
+	float pidError_Right = 0;
+	float pidIntegral_Right = 0;
+	float pidValue_Right;
 
-	double pidError_Left = 0;
-	double pidIntegral_Left = 0;
-	double pidValue_Left;
-	
-//	double fast = 120,
-//	double med = 90,
-	double slow = 65;
-//	double low = 50;
+	float pidError_Left = 0;
+	float pidIntegral_Left = 0;
+	float pidValue_Left;
+
+//	float fast = 120,
+//	float med = 90,
+//	float slow = 65;
+//	float low = 50;
 
 	resetMotorEncoder(leftBack);
 	resetMotorEncoder(rightBack);
@@ -56,8 +56,8 @@ task main()
 		RPM_Left_Motor = getMotorVelocity(leftBack);
 		RPM_Left_FlyWheel = RPM_Left_Motor * 18;
 
-		pidError_Right = DESIRED_RPM_FLYWHEEL - RPM_RIGHT_FLYWHEEL;
-		pidError_Left = DESIRED_RPM_FLYWHEEL - RPM_LEFT_FLYWHEEL;
+		pidError_Right = DESIRED_RPM_FLYWHEEL - RPM_Right_FlyWheel;
+		pidError_Left = DESIRED_RPM_FLYWHEEL - RPM_Left_FlyWheel;
 
 		if(pidError_Right < 50)
 			pidIntegral_Right += pidError_Right;
@@ -68,13 +68,13 @@ task main()
 			pidIntegral_Left += pidError_Left;
 		else
 			pidIntegral_Left = 0;
-		
+
 		pidValue_Right = (kP * pidError_Right) + (kI * pidIntegral_Right);
-		speed += pidValue_Right;
+		speed_Right += pidValue_Right;
 
 		pidValue_Left = (kP * pidError_Left) + (kI * pidIntegral_Left);
-		speed += pidValue_Left;
-		
+		speed_Left += pidValue_Left;
+
 		if(speed_Right > 127)
 			speed_Right = 127;
 		else if(speed_Right < -127)
