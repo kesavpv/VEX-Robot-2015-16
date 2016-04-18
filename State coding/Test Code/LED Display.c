@@ -34,16 +34,19 @@ task main()
 	clearLCDLine(0);
 	clearLCDLine(1);
 
-	bool left;
-	bool center;
-	bool right;
+	bool left = false;
+	bool center = true;
+	bool right = false;
 
-	left = false;
-	center = true;
-	right = false;
+	clearLCDLine(0);
 
 	while(true)
 	{
+		if(right_rpm >= 100)
+			clearLCDLine(1);
+		if(left_rpm >= 100)
+			clearLCDLine(1);
+
 		motor[rightFront] = 127;
 		motor[leftFront] = 127;
 
@@ -53,8 +56,8 @@ task main()
 		right_rpm = getMotorVelocity(rightFront);
 		left_rpm = getMotorVelocity(leftFront);
 
-		mainBattery = nImmediateBatteryLevel/1000.0;
-		backupBattery = BackupBatteryLevel/1000.0;
+		mainBattery = nImmediateBatteryLevel/100000.0;
+		backupBattery = BackupBatteryLevel/100000.0;
 
 		if(nLCDButtons == leftButton)
 		{
@@ -62,13 +65,13 @@ task main()
 			center = false;
 			right = false;
 		}
-		if(nLCDButtons == centerButton)
+		else if(nLCDButtons == centerButton)
 		{
 			left = false;
 			center = true;
 			right = false;
 		}
-		if(nLCDButtons == rightButton)
+		else if(nLCDButtons == rightButton)
 		{
 			left = false;
 			center = false;
@@ -81,20 +84,17 @@ task main()
 			displayLCDNumber(1, 0, left_encoder);
 			displayLCDNumber(1, 8, right_encoder);
 		}
-		if(center)
+		else if(center)
 		{
 			displayLCDCenteredString(0, "Left   Right");
 			displayLCDNumber(1, 0, left_rpm);
 			displayLCDNumber(1, 8, right_rpm);
 		}
-		if(right)
+		else if(right)
 		{
 			displayLCDCenteredString(0, "Main   Backup");
 			displayLCDNumber(1, 0, mainBattery);
 			displayLCDNumber(1, 8, backupBattery);
 		}
-
-//		motor[rightFront] = 127;
-//		motor[leftFront] = 127;
 	}
 }
