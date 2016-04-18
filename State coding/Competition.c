@@ -108,8 +108,6 @@ task usercontrol()
 	bool center = true;
 	bool right = false;
 	
-	clearLCDLine(0);
-	
 	while(true)
 	{
 		RPM_Right_Motor = getMotorVelocity(rightBack);
